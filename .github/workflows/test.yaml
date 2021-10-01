@@ -13,9 +13,18 @@ on:
       - master
       - release/*
       - ci/*
-
+defaults:
+  run:
+    shell: bash
+      
+env:
+  CI: true
+  FORCE_COLOR: 2
+  
 jobs:
   unit-test:
+    strategy:
+      fail-fast: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -26,7 +35,7 @@ jobs:
           java-version: 13
 
       - name: Install System Libs
-        run: sudo apt-get install -y openssl libapr1
+        run: sudo apt-get install -y -qq openssl libapr1
 
       - name: Check
         uses: eskatos/gradle-command-action@v1
@@ -41,6 +50,8 @@ jobs:
           file: ./build/reports/jacoco/test/jacocoTestReport.xml
 
   integration-test:
+    strategy:
+      fail-fast: false
     runs-on: ubuntu-latest
     # Docker Hub image that `container-job` executes in.
     # Use -buster which comes with Git 2.20, because action/checkout needs Git 2.18+ to make correct clone (needed by Gradle version plugin)
